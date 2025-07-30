@@ -1,0 +1,28 @@
+FROM node:23.11.0-alpine
+
+WORKDIR /app
+
+RUN apk add bash
+
+# PuppeteerがChromiumをダウンロードしないように環境変数を設定する
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
+# Alpine LinuxにChromiumと必要な依存関係、日本語フォントをインストール
+# '--no-cache' オプションでイメージサイズを削減
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    font-noto-cjk
+
+
+# package.jsonとpackage-lock.jsonをコピー
+COPY ./package*.json ./
+
+# 依存関係をインストール
+RUN npm install
+
+CMD ["npm", "run", "dev"]

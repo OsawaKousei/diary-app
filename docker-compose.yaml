@@ -1,0 +1,47 @@
+volumes:
+  diary-app-frontend-node-modules:
+  diary-app-backend-python-packages:
+  diary-app-postgres-data:
+
+services:
+  diary-app-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - diary-app-frontend-node-modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - diary-app-app-network
+
+  diary-app-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend/app:/app
+      - diary-app-backend-python-packages:/app/.venv
+    ports:
+      - "8000:8000"
+    networks:
+      - diary-app-app-network
+
+  diary-app-postgres:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - diary-app-postgres-data:/var/lib/postgresql/data
+    networks:
+      - diary-app-app-network
+
+networks:
+  diary-app-app-network:
+    driver: bridge
